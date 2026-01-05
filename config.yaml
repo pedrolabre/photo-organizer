@@ -1,0 +1,131 @@
+# ====================================================
+# CONFIGURAÇÃO DO ORGANIZADOR DE FOTOS
+# ====================================================
+
+# === PASTAS DE ENTRADA ===
+# Lista de pastas onde procurar fotos (múltiplas fontes permitidas)
+input_folders:
+  - "./test_photos"  # Pasta de teste com fotos
+  # - "C:\\Users\\usuario\\Pictures"  # Exemplo: pasta de fotos do Windows (mantida como comentário)
+  # - "D:\\iPhone_Backup\\Photos"  # Descomente e adicione mais pastas conforme necessário
+  # - "E:\\USB_Drive\\Vacation"
+
+# === PASTA DE SAÍDA ===
+output_folder: "./output/organized"
+
+# === PASTA DE QUARENTENA (DUPLICATAS) ===
+quarantine_folder: "./output/quarantine"
+
+# === EXTENSÕES DE IMAGEM SUPORTADAS ===
+# Formatos que serão processados
+supported_extensions:
+  - ".jpg"
+  - ".jpeg"
+  - ".png"
+  - ".gif"
+  - ".bmp"
+  - ".tiff"
+  - ".tif"
+  - ".heic"  # Fotos do iPhone
+  - ".heif"
+  - ".webp"
+  - ".raw"
+  - ".cr2"   # Canon RAW
+  - ".nef"   # Nikon RAW
+  - ".dng"   # Adobe RAW
+
+# === ORGANIZAÇÃO DE PASTAS ===
+organization:
+  # Formato da estrutura de pastas: "year_month_day", "year_month" ou "year"
+  structure: "year_month_day"  # Organiza por ano/mês/dia
+  
+  # Formato dos nomes das pastas de data
+  folder_format:
+    year: "%Y"           # Ex: 2024
+    month: "%Y-%m"       # Ex: 2024-01
+    day: "%Y-%m-%d"      # Ex: 2024-01-15
+  
+  # Se não houver data EXIF, usar data de modificação do arquivo?
+  use_file_date_as_fallback: true
+  
+  # Criar subpasta "sem_data" para fotos sem metadados?
+  create_no_date_folder: true
+
+# === DETECÇÃO DE DUPLICATAS ===
+duplicates:
+  # Detectar duplicatas exatas (mesmo hash MD5)?
+  detect_exact: true
+  
+  # Detectar duplicatas similares (hash perceptual)?
+  # ATENÇÃO: Mais lento, só ative se necessário
+  detect_similar: true
+  
+  # Tolerância para duplicatas similares (0-64, menor = mais rigoroso)
+  # 0 = idênticas, 10 = muito similares, 20 = similares
+  similarity_threshold: 8
+  
+  # Ao encontrar duplicatas, qual manter na pasta organizada?
+  # Opções: "highest_resolution", "newest", "oldest", "first_found"
+  keep_policy: "highest_resolution"
+
+# === SEGURANÇA ===
+safety:
+  # NUNCA apagar arquivos originais
+  never_delete_originals: true
+  
+  # Copiar ou mover arquivos? (copy = mais seguro, move = economiza espaço)
+  # Opções: "copy", "move"
+  file_operation: "copy"
+  
+  # Fazer backup do banco de dados antes de processar?
+  backup_database: true
+  
+  # Verificar integridade após copiar (compara hashes)?
+  verify_after_copy: true
+
+# === PERFORMANCE ===
+performance:
+  # Número de threads para processamento paralelo (0 = automático)
+  max_threads: 0
+  
+  # Tamanho do cache de thumbnails em MB
+  cache_size_mb: 500
+  
+  # Processar arquivos em lote (batch) para economia de memória
+  batch_size: 100
+
+# === LOGS ===
+logging:
+  # Nível de detalhe: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  
+  # Salvar logs em arquivo?
+  save_to_file: true
+  
+  # Manter logs por quantos dias?
+  retention_days: 30
+  
+  # Exibir logs coloridos no terminal?
+  use_colors: true
+
+# === RELATÓRIOS ===
+reports:
+  # Gerar relatório JSON após processamento?
+  generate_json: true
+  
+  # Incluir thumbnails no relatório (aumenta tamanho)?
+  include_thumbnails: false
+  
+  # Formato de data no relatório
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+# === BANCO DE DADOS ===
+database:
+  # Nome do arquivo do banco SQLite
+  filename: "photo_organizer.db"
+  
+  # Fazer backup automático?
+  auto_backup: true
+  
+  # Manter backups por quantos dias?
+  backup_retention_days: 7

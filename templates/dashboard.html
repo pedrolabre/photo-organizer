@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Organizer Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .container { max-width: 900px; margin-top: 40px; }
+        .progress { height: 28px; }
+        .tree { font-family: monospace; background: #fff; padding: 1em; border-radius: 8px; }
+        .stat-box { background: #fff; border-radius: 8px; padding: 1em 1.5em; margin-bottom: 1em; }
+        .form-label { font-weight: 500; }
+        .btn-lg { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="mb-4">📸 Photo Organizer Dashboard</h1>
+    <form id="config-form" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Pasta de origem</label>
+                <input type="text" class="form-control" id="input-path" placeholder="Ex: C:\Backup\iPhone_2024" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Pasta de destino</label>
+                <input type="text" class="form-control" id="output-path" placeholder="Ex: C:\Fotos\Organizadas" required>
+            </div>
+        </div>
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <label class="form-label">Operação</label>
+                <select class="form-select" id="operation">
+                    <option value="copy">📋 Copiar</option>
+                    <option value="move">✂️ Mover</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Estrutura</label>
+                <select class="form-select" id="structure">
+                    <option value="year_month_day">📅 Ano/Mês/Dia</option>
+                    <option value="year_month">📅 Ano/Mês</option>
+                    <option value="year">📅 Apenas Ano</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="scan-recursive" checked>
+                                    <label class="form-check-label" for="scan-recursive">📂 Incluir subpastas (recursivo)</label>
+                                </div>
+                                <small class="text-muted ms-4">Se desmarcado, apenas arquivos da pasta raiz serão processados</small>
+                            </div>
+                        </div>
+                <label class="form-label">Duplicatas</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="detect-exact">
+                    <label class="form-check-label" for="detect-exact">Exatas</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="detect-similar">
+                    <label class="form-check-label" for="detect-similar">Visuais</label>
+                </div>
+                <div class="mt-2" id="similaritySlider" style="display: none;">
+                    <label class="form-label">Sensibilidade (1-20, menor = mais rigoroso)</label>
+                    <input type="range" class="form-range" id="threshold" min="1" max="20" value="5">
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">Rigoroso</small>
+                        <span class="fw-bold" id="thresholdValue">5</span>
+                        <small class="text-muted">Permissivo</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="button" class="btn btn-primary btn-lg" id="btn-scan">🔍 Escanear e Visualizar</button>
+            <button type="button" class="btn btn-success btn-lg" id="btn-organize" disabled>▶️ Organizar Fotos</button>
+        </div>
+    </form>
+    <div id="preview-section" style="display:none;">
+        <h4>Preview da Estrutura</h4>
+        <div class="stat-box mb-2">
+            <span id="files-found"></span>
+            <span id="summary"></span>
+        </div>
+        <div class="tree" id="tree-preview"></div>
+    </div>
+    <div id="progress-section" style="display:none;">
+        <h4>Progresso</h4>
+        <div class="progress mb-2">
+            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%">0%</div>
+        </div>
+        <div id="progress-message"></div>
+    </div>
+    <div id="result-section" style="display:none;">
+        <h4>Resultado</h4>
+        <div class="stat-box" id="result-box"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+const scanBtn = document.getElementById('btn-scan');
+const organizeBtn = document.getElementById('btn-organize');
+const previewSection = document.getElementById('preview-section');
+const progressSection = document.getElementById('progress-section');
+const resultSection = document.getElementById('result-section');
+const progressBar = document.getElementById('progress-bar');
+const progressMsg = document.getElementById('progress-message');
+const resultBox = document.getElementById('result-box');
+
+// Event listeners
+document.getElementById('detect-similar').addEventListener('change', function() {
+    document.getElementById('similaritySlider').style.display = 
+        this.checked ? 'block' : 'none';
+});
+
+document.getElementById('threshold').addEventListener('input', function() {
+    document.getElementById('thresholdValue').textContent = this.value;
+});
+
+scanBtn.onclick = async function() {
+    previewSection.style.display = 'none';
+    progressSection.style.display = 'none';
+    resultSection.style.display = 'none';
+    organizeBtn.disabled = true;
+    const inputPath = document.getElementById('input-path').value;
+    const outputPath = document.getElementById('output-path').value;
+    const structure = document.getElementById('structure').value;
+    const recursive = document.getElementById('scan-recursive').checked;
+    if (!inputPath || !outputPath) {
+        alert('Preencha as pastas de origem e destino.');
+        return;
+    }
+    try {
+        const resp = await axios.post('/api/scan', {
+            input_path: inputPath,
+            output_path: outputPath,
+            structure: structure,
+            recursive: recursive
+        });
+        if (resp.data.success) {
+            document.getElementById('files-found').innerText = `Imagens encontradas: ${resp.data.files_found}`;
+            document.getElementById('summary').innerText = resp.data.summary;
+            document.getElementById('tree-preview').innerText = resp.data.tree;
+            previewSection.style.display = 'block';
+            organizeBtn.disabled = false;
+        } else {
+            alert(resp.data.error || 'Erro ao escanear.');
+        }
+    } catch (e) {
+        alert('Erro ao escanear: ' + (e.response?.data?.error || e.message));
+    }
+};
+
+organizeBtn.onclick = async function() {
+    progressSection.style.display = 'block';
+    resultSection.style.display = 'none';
+    progressBar.style.width = '0%';
+    progressBar.innerText = '0%';
+    progressMsg.innerText = '';
+    organizeBtn.disabled = true;
+    const inputPath = document.getElementById('input-path').value;
+    const outputPath = document.getElementById('output-path').value;
+    const structure = document.getElementById('structure').value;
+    const operation = document.getElementById('operation').value;
+    const detectExact = document.getElementById('detect-exact').checked;
+    const detectSimilar = document.getElementById('detect-similar').checked;
+    const recursive = document.getElementById('scan-recursive').checked;
+    const threshold = parseInt(document.getElementById('threshold').value);
+    try {
+        const resp = await axios.post('/api/organize', {
+            input_path: inputPath,
+            output_path: outputPath,
+            structure: structure,
+            operation: operation,
+            detect_exact: detectExact,
+            detect_similar: detectSimilar,
+            recursive: recursive,
+            similarity_threshold: threshold
+        });
+        if (resp.data.success) {
+            pollProgress();
+        } else {
+            alert(resp.data.error || 'Erro ao iniciar organização.');
+        }
+    } catch (e) {
+        alert('Erro ao iniciar: ' + (e.response?.data?.error || e.message));
+    }
+};
+
+async function pollProgress() {
+    let finished = false;
+    while (!finished) {
+        await new Promise(r => setTimeout(r, 1000));
+        try {
+            const resp = await axios.get('/api/progress');
+            if (resp.data.success) {
+                const prog = resp.data.progress;
+                progressBar.style.width = prog.percentage + '%';
+                progressBar.innerText = prog.percentage + '%';
+                progressMsg.innerText = prog.message;
+                if (prog.stage === 'done' || !resp.data.processing) {
+                    finished = true;
+                    showResult();
+                }
+            }
+        } catch (e) {
+            break;
+        }
+    }
+}
+
+async function showResult() {
+    try {
+        const resp = await axios.get('/api/result');
+        if (resp.data.success) {
+            const r = resp.data.result;
+            resultBox.innerHTML = `
+                <b>Arquivos processados:</b> ${r.files_processed}<br>
+                <b>Organizados:</b> ${r.files_organized}<br>
+                <b>Duplicatas exatas:</b> ${r.duplicates_exact}<br>
+                <b>Duplicatas visuais:</b> ${r.duplicates_similar}<br>
+                <b>Erros:</b> ${r.errors}<br>
+                <b>Início:</b> ${r.started_at}<br>
+                <b>Fim:</b> ${r.finished_at || '-'}<br>
+            `;
+            resultSection.style.display = 'block';
+        }
+    } catch (e) {}
+}
+</script>
+</body>
+</html>
