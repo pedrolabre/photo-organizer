@@ -201,6 +201,7 @@ photo-organizer/
 │   ├── database/
 │   │   └── db_manager.py           # Gerenciador da base SQLite e consultas
 │   ├── detection/
+│   │   ├── bk_tree.py              # Árvore métrica Burkhard-Keller para indexação e busca
 │   │   ├── exact_duplicates.py     # Detecção de duplicatas exatas por MD5
 │   │   ├── similar_detector.py     # Detecção de similares visuais por pHash
 │   │   └── keep_policy.py          # Regras de retenção (resolução, data, ordem)
@@ -228,6 +229,8 @@ photo-organizer/
 │   ├── generate_reports.py         # Geração de relatórios com metadados detalhados
 │   └── package_reports.py          # Empacotamento de relatórios em arquivo ZIP
 ├── tests/
+│   ├── test_bk_tree.py             # Teste de indexação e busca em BK-Tree
+│   ├── test_db_manager.py          # Teste de pragmas WAL, batch inserts e backup
 │   ├── test_exact_duplicates.py    # Teste de agrupamento por hash MD5
 │   ├── test_file_mover.py          # Teste de cópia, integridade e resolução de conflitos
 │   ├── test_folder_organizer.py    # Teste de preview de pastas e agrupamentos
