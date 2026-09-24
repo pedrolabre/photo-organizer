@@ -1,20 +1,15 @@
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Tuple, Optional
 from PIL import Image
 import imagehash
 from src.utils.logger import get_logger
+from src.detection.bk_tree import BKTree
 
 
 class SimilarDuplicateDetector:
-    """Detecta duplicatas visuais usando hashes perceptuais (phash).
-
-    Método simples: calcula `imagehash.phash` para cada imagem e agrupa
-    imagens cuja distância de Hamming seja menor ou igual a um limite.
-    """
-
-    def __init__(self, hash_size: int = 16):
+    def __init__(self, hash_size: int = 16) -> None:
         self.logger = get_logger()
-        self.hash_size = hash_size
+        self.hash_size: int = hash_size
 
     def compute_hash(self, path: Path) -> imagehash.ImageHash:
         try:
@@ -24,36 +19,56 @@ class SimilarDuplicateDetector:
             self.logger.debug(f"Erro ao calcular hash de {path}: {e}")
             raise
 
-    def group_similar(self, paths: List[Path], max_distance: int = 5) -> Dict[str, List[str]]:
-        """Agrupa imagens similares. Retorna dict: representative_hash -> [paths]."""
-        hashes = {}
+    def build_tree(
+        self, items: List[Tuple[imagehash.ImageHash, str]]
+    ) -> BKTree[Tuple[imagehash.ImageHash, str]]:
+        def _distance(
+            a: Tuple[imagehash.ImageHash, str], b: Tuple[imagehash.ImageHash, str]
+        ) -> int:
+            return int(a[0] - b[0])
+
+        tree = BKTree[Tuple[imagehash.ImageHash, str]](distance_fn=_distance)
+        tree.build(items)
+        return tree
+
+    def find_similar(
+        self,
+        query_hash: imagehash.ImageHash,
+        tree: BKTree[Tuple[imagehash.ImageHash, str]],
+        max_distance: int = 5,
+    ) -> List[Tuple[str, int]]:
+        matches = tree.search((query_hash, ""), max_distance=max_distance)
+        return [(item[1], dist) for item, dist in matches]
+
+    def group_similar(
+        self, paths: List[Path], max_distance: int = 5
+    ) -> Dict[str, List[str]]:
+        items: List[Tuple[imagehash.ImageHash, str]] = []
         for p in paths:
             try:
                 h = self.compute_hash(p)
-                hashes[str(p)] = h
+                items.append((h, str(p)))
             except Exception:
                 continue
 
-        visited = set()
-        groups = {}
+        if len(items) < 2:
+            return {}
 
-        items = list(hashes.items())
-        for i, (p_i, h_i) in enumerate(items):
+        tree = self.build_tree(items)
+        visited = set()
+        groups: Dict[str, List[str]] = {}
+
+        for h_i, p_i in items:
             if p_i in visited:
                 continue
-            group = [p_i]
+            group: List[str] = [p_i]
             visited.add(p_i)
-            for j in range(i + 1, len(items)):
-                p_j, h_j = items[j]
-                if p_j in visited:
-                    continue
-                try:
-                    dist = h_i - h_j
-                except Exception:
-                    continue
-                if dist <= max_distance:
-                    group.append(p_j)
-                    visited.add(p_j)
+
+            matches = tree.search((h_i, p_i), max_distance=max_distance)
+            for (matched_h, matched_p), _ in matches:
+                if matched_p not in visited:
+                    group.append(matched_p)
+                    visited.add(matched_p)
 
             if len(group) > 1:
                 groups[p_i] = group
