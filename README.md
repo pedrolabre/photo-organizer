@@ -2,7 +2,7 @@
 
 Organizador e analisador local de bibliotecas fotográficas em Python. O sistema realiza varredura recursiva de diretórios, extrai metadados EXIF/GPS, calcula hashes de integridade (MD5 e perceptual), identifica duplicatas (exatas ou similares) e reorganiza as fotos em estruturas temporais personalizáveis (`ano`, `ano/mês` ou `ano/mês/dia`).
 
-Disponibiliza duas interfaces: uma CLI para execução em lote ou automação e um Dashboard Web local em Flask para visualização em árvore e acompanhamento em tempo real.
+Disponibiliza três interfaces: uma interface gráfica desktop nativa moderna (GUI) com seleção visual de diretórios e processamento desacoplado em threads, um Dashboard Web local em Flask alinhado à documentação técnica e uma CLI para execução em lote ou automação.
 
 ---
 
@@ -156,14 +156,24 @@ logging:
 
 ## Execução
 
-### 1. Interface Web (Dashboard)
-Inicie o servidor local do dashboard para selecionar pastas, visualizar a simulação em árvore e acompanhar o processamento:
+### 1. Interface Gráfica Desktop (GUI)
+Para iniciar a aplicação gráfica desktop nativa com seleção visual de pastas, configuração de parâmetros, árvore de pré-visualização e barra de progresso em tempo real:
 ```bash
+python run_desktop.py
+# ou alternativamente:
+python gui.py
+```
+
+### 2. Interface Web (Dashboard)
+Para iniciar o servidor local do dashboard e abrir o navegador automaticamente:
+```bash
+python run_web.py
+# ou iniciar o servidor diretamente:
 python app.py
 ```
 Acesse no navegador: **[http://localhost:5000](http://localhost:5000)**.
 
-### 2. Interface de Linha de Comando (CLI)
+### 3. Interface de Linha de Comando (CLI)
 Para executar o processamento diretamente pelo terminal:
 
 ```bash
@@ -205,6 +215,13 @@ photo-organizer/
 │   │   ├── exact_duplicates.py     # Detecção de duplicatas exatas por MD5
 │   │   ├── similar_detector.py     # Detecção de similares visuais por pHash
 │   │   └── keep_policy.py          # Regras de retenção (resolução, data, ordem)
+│   ├── gui/
+│   │   ├── desktop_app.py          # Controlador da interface desktop e despacho de eventos
+│   │   ├── gui_model.py            # Modelos de dados e configurações da GUI
+│   │   ├── styles.py               # Configuração de temas e estilos ttk
+│   │   ├── view_components.py      # Cartões de seleção de diretórios e parâmetros
+│   │   ├── views.py                # Visualização principal, barra de progresso e árvore
+│   │   └── worker.py               # Execução assíncrona desacoplada em worker threads
 │   ├── organization/
 │   │   ├── file_mover.py           # Operações seguras de cópia/movimentação
 │   │   ├── folder_organizer.py     # Criação de pastas e cálculo de árvore
@@ -220,7 +237,7 @@ photo-organizer/
 │   │   └── configs/                # Dataclasses tipadas de cada seção de config
 │   └── processing.py               # Worker de execução em segundo plano
 ├── templates/
-│   └── dashboard.html              # Template da interface web (Bootstrap 5)
+│   └── dashboard.html              # Template da interface web moderno
 ├── docs/                           # Documentação Web (GitHub Pages)
 │   └── index.html
 ├── scripts/
@@ -234,8 +251,13 @@ photo-organizer/
 │   ├── test_exact_duplicates.py    # Teste de agrupamento por hash MD5
 │   ├── test_file_mover.py          # Teste de cópia, integridade e resolução de conflitos
 │   ├── test_folder_organizer.py    # Teste de preview de pastas e agrupamentos
-│   └── test_similar_detector.py    # Teste de cálculo de distância perceptual
-├── app.py                          # Ponto de entrada do Dashboard Web
+│   ├── test_gui.py                 # Teste da interface gráfica desktop e worker assíncrono
+│   ├── test_similar_detector.py    # Teste de cálculo de distância perceptual
+│   └── test_web_routes.py          # Teste de renderização do dashboard e endpoints web
+├── app.py                          # Ponto de entrada do Dashboard Web (Flask)
+├── gui.py                          # Ponto de entrada da GUI Desktop
+├── run_desktop.py                  # Script para abrir a versão desktop
+├── run_web.py                      # Script para abrir a versão web e navegador
 ├── main.py                         # Ponto de entrada da CLI
 ├── config.yaml                     # Configuração padrão do sistema
 ├── requirements.txt                # Dependências do projeto

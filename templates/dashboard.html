@@ -2,108 +2,458 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Photo Organizer Dashboard</title>
+    <title>Photo Organizer - Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f8f9fa; }
-        .container { max-width: 900px; margin-top: 40px; }
-        .progress { height: 28px; }
-        .tree { font-family: monospace; background: #fff; padding: 1em; border-radius: 8px; }
-        .stat-box { background: #fff; border-radius: 8px; padding: 1em 1.5em; margin-bottom: 1em; }
-        .form-label { font-weight: 500; }
-        .btn-lg { font-size: 1.1rem; }
+        :root {
+            --bg-canvas: #F1F2EB;
+            --brand-green: #448844;
+            --brand-green-hover: #376d37;
+            --brand-green-soft: rgba(68, 136, 68, 0.08);
+            --brand-green-border: rgba(68, 136, 68, 0.25);
+            --text-dark: #0f172a;
+            --text-slate: #334155;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --card-border: #d4d4d8;
+            --terminal-bg: #0f172a;
+            --terminal-text: #f8fafc;
+        }
+
+        * {
+            border-radius: 0 !important;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 8px 0 20px 0;
+            font-size: 0.85rem;
+        }
+
+        .header-bar {
+            padding: 6px 0 8px 0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #d4d4d8;
+        }
+
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-slate);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-title i {
+            color: var(--brand-green);
+            font-size: 1rem;
+        }
+
+        .badge-pill-brand {
+            background: var(--brand-green);
+            color: #ffffff;
+            padding: 3px 8px;
+            font-weight: 600;
+            font-size: 0.72rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 12px 16px;
+            margin-bottom: 10px;
+        }
+
+        .card-header-custom {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        .card-icon {
+            width: 22px;
+            height: 22px;
+            background: var(--brand-green-soft);
+            color: var(--brand-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .card-title-custom {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-slate);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-slate);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #cbd5e1;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            height: 30px;
+            color: var(--text-dark);
+            background-color: #ffffff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand-green);
+            box-shadow: 0 0 0 2px rgba(68, 136, 68, 0.2);
+            outline: none;
+        }
+
+        .form-check {
+            min-height: auto;
+            margin-bottom: 0;
+            padding-left: 1.4em;
+        }
+
+        .form-check-input {
+            width: 14px;
+            height: 14px;
+            margin-top: 2px;
+            border: 1px solid #94a3b8;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--brand-green);
+            border-color: var(--brand-green);
+        }
+
+        .form-check-label {
+            font-size: 0.8rem;
+            color: var(--text-slate);
+            font-weight: 500;
+        }
+
+        .btn-brand-primary {
+            background: var(--brand-green);
+            color: #ffffff;
+            border: 1px solid var(--brand-green);
+            padding: 4px 14px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-brand-primary:hover {
+            background: var(--brand-green-hover);
+            color: #ffffff;
+        }
+
+        .btn-brand-primary:disabled {
+            background: #94a3b8;
+            border-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-brand-dark {
+            background: #334155;
+            color: #ffffff;
+            border: 1px solid #334155;
+            padding: 4px 14px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-brand-dark:hover {
+            background: #1e293b;
+            color: #ffffff;
+        }
+
+        .terminal-preview {
+            background: var(--terminal-bg);
+            color: var(--terminal-text);
+            padding: 10px 12px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.78rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            overflow-y: auto;
+            white-space: pre;
+            border: 1px solid var(--brand-green-border);
+            max-height: calc(100vh - 210px);
+            min-height: 320px;
+        }
+
+        .terminal-preview::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+
+        .terminal-preview::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        .terminal-preview::-webkit-scrollbar-thumb {
+            background: #334155;
+            border: 1px solid #1e293b;
+        }
+
+        .terminal-preview::-webkit-scrollbar-thumb:hover {
+            background: var(--brand-green);
+        }
+
+        .empty-preview-placeholder {
+            border: 1px dashed #cbd5e1;
+            background: #ffffff;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .progress {
+            height: 16px;
+            background-color: #e2e8f0;
+            border: 1px solid #cbd5e1;
+        }
+
+        .progress-bar {
+            background: var(--brand-green);
+            font-size: 0.72rem;
+            font-weight: 600;
+            line-height: 16px;
+        }
+
+        .stat-pill {
+            background: var(--brand-green-soft);
+            color: #255c25;
+            padding: 2px 8px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            border: 1px solid var(--brand-green-border);
+            display: inline-block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .result-metric-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 10px;
+            text-align: center;
+        }
+
+        .result-metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--brand-green);
+            line-height: 1.2;
+        }
+
+        .result-metric-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1 class="mb-4">📸 Photo Organizer Dashboard</h1>
-    <form id="config-form" class="mb-4">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Pasta de origem</label>
-                <input type="text" class="form-control" id="input-path" placeholder="Ex: C:\Backup\iPhone_2024" required>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label">Pasta de destino</label>
-                <input type="text" class="form-control" id="output-path" placeholder="Ex: C:\Fotos\Organizadas" required>
-            </div>
-        </div>
-        <div class="row g-3 mt-2">
-            <div class="col-md-4">
-                <label class="form-label">Operação</label>
-                <select class="form-select" id="operation">
-                    <option value="copy">📋 Copiar</option>
-                    <option value="move">✂️ Mover</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Estrutura</label>
-                <select class="form-select" id="structure">
-                    <option value="year_month_day">📅 Ano/Mês/Dia</option>
-                    <option value="year_month">📅 Ano/Mês</option>
-                    <option value="year">📅 Apenas Ano</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                        <div class="row g-3 mt-2">
-                            <div class="col-md-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="scan-recursive" checked>
-                                    <label class="form-check-label" for="scan-recursive">📂 Incluir subpastas (recursivo)</label>
-                                </div>
-                                <small class="text-muted ms-4">Se desmarcado, apenas arquivos da pasta raiz serão processados</small>
-                            </div>
-                        </div>
-                <label class="form-label">Duplicatas</label>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="detect-exact">
-                    <label class="form-check-label" for="detect-exact">Exatas</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="detect-similar">
-                    <label class="form-check-label" for="detect-similar">Visuais</label>
-                </div>
-                <div class="mt-2" id="similaritySlider" style="display: none;">
-                    <label class="form-label">Sensibilidade (1-20, menor = mais rigoroso)</label>
-                    <input type="range" class="form-range" id="threshold" min="1" max="20" value="5">
-                    <div class="d-flex justify-content-between">
-                        <small class="text-muted">Rigoroso</small>
-                        <span class="fw-bold" id="thresholdValue">5</span>
-                        <small class="text-muted">Permissivo</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="mt-4 d-flex gap-2">
-            <button type="button" class="btn btn-primary btn-lg" id="btn-scan">🔍 Escanear e Visualizar</button>
-            <button type="button" class="btn btn-success btn-lg" id="btn-organize" disabled>▶️ Organizar Fotos</button>
-        </div>
-    </form>
-    <div id="preview-section" style="display:none;">
-        <h4>Preview da Estrutura</h4>
-        <div class="stat-box mb-2">
-            <span id="files-found"></span>
-            <span id="summary"></span>
-        </div>
-        <div class="tree" id="tree-preview"></div>
-    </div>
-    <div id="progress-section" style="display:none;">
-        <h4>Progresso</h4>
-        <div class="progress mb-2">
-            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width:0%">0%</div>
-        </div>
-        <div id="progress-message"></div>
-    </div>
-    <div id="result-section" style="display:none;">
-        <h4>Resultado</h4>
-        <div class="stat-box" id="result-box"></div>
+<div class="header-bar">
+    <div class="container-fluid px-3 px-xl-4 d-flex justify-content-between align-items-center">
+        <h1 class="brand-title">
+            <i class="fa-solid fa-camera"></i>
+            Photo Organizer
+        </h1>
     </div>
 </div>
+
+<div class="container-fluid px-3 px-xl-4">
+    <div class="row g-3">
+        <div class="col-12 col-lg-5 col-xl-4">
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <h2 class="card-title-custom">Configuração de Pastas e Parâmetros</h2>
+                </div>
+                <form id="config-form">
+                    <div class="mb-2">
+                        <label class="form-label" for="input-path">Pasta de Origem</label>
+                        <input type="text" class="form-control" id="input-path" placeholder="Ex: C:\Backup\Fotos_Viagem" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="output-path">Pasta de Destino</label>
+                        <input type="text" class="form-control" id="output-path" placeholder="Ex: C:\Fotos\Biblioteca_Organizada" required>
+                    </div>
+
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="form-label" for="operation">Operação</label>
+                            <select class="form-select" id="operation">
+                                <option value="copy">Copiar fotos (seguro)</option>
+                                <option value="move">Mover fotos</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" for="structure">Estrutura</label>
+                            <select class="form-select" id="structure">
+                                <option value="year_month_day">Ano / Mês / Dia</option>
+                                <option value="year_month">Ano / Mês</option>
+                                <option value="year">Apenas Ano</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Varredura</label>
+                        <div class="form-check mt-1">
+                            <input class="form-check-input" type="checkbox" id="scan-recursive" checked>
+                            <label class="form-check-label" for="scan-recursive">Incluir subpastas (recursivo)</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">Detecção de Duplicatas</label>
+                        <div class="d-flex gap-3 mt-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="detect-exact" checked>
+                                <label class="form-check-label" for="detect-exact">Exatas (MD5)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="detect-similar">
+                                <label class="form-check-label" for="detect-similar">Visuais (pHash)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2" id="similaritySlider" style="display: none;">
+                        <label class="form-label" for="threshold">Limiar de Similaridade (1-20)</label>
+                        <input type="range" class="form-range" id="threshold" min="1" max="20" value="5" style="height: 18px;">
+                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.72rem;">
+                            <span>Rigoroso (1)</span>
+                            <span class="fw-bold text-dark" id="thresholdValue">5</span>
+                            <span>Permissivo (20)</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 pt-2 border-top d-flex gap-2">
+                        <button type="button" class="btn-brand-dark flex-grow-1 justify-content-center" id="btn-scan">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            Escanear e Visualizar
+                        </button>
+                        <button type="button" class="btn-brand-primary flex-grow-1 justify-content-center" id="btn-organize" disabled>
+                            <i class="fa-solid fa-play"></i>
+                            Organizar Fotos
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="progress-section" class="content-card" style="display: none;">
+                <div class="card-header-custom">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                    </div>
+                    <h3 class="card-title-custom">Progresso do Processamento</h3>
+                </div>
+                <div class="progress mb-2">
+                    <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%">0%</div>
+                </div>
+                <div id="progress-message" class="text-muted" style="font-size: 0.78rem; font-weight: 500;"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-7 col-xl-8">
+            <div id="preview-placeholder" class="empty-preview-placeholder">
+                <div style="font-size: 2.2rem; margin-bottom: 8px; color: #94a3b8;">
+                    <i class="fa-regular fa-folder-open"></i>
+                </div>
+                <div style="font-weight: 600; font-size: 0.88rem; color: var(--text-slate);">
+                    Nenhuma visualização carregada
+                </div>
+                <div style="font-size: 0.76rem; max-width: 440px; margin-top: 4px; line-height: 1.4;">
+                    Configure as pastas e opções à esquerda e clique em <strong>Escanear e Visualizar</strong> para simular a nova estrutura de pastas.
+                </div>
+            </div>
+
+            <div id="preview-section" class="content-card" style="display: none;">
+                <div class="card-header-custom">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-folder-tree"></i>
+                    </div>
+                    <h3 class="card-title-custom">Pré-visualização da Estrutura</h3>
+                </div>
+                <div class="d-flex gap-2 mb-2">
+                    <span class="stat-pill" id="files-found"></span>
+                    <span class="stat-pill" id="summary"></span>
+                </div>
+                <div class="terminal-preview" id="tree-preview"></div>
+            </div>
+
+            <div id="result-section" class="content-card" style="display: none;">
+                <div class="card-header-custom">
+                    <div class="card-icon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h3 class="card-title-custom">Resultado da Operação</h3>
+                </div>
+                <div id="result-box"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
 const scanBtn = document.getElementById('btn-scan');
 const organizeBtn = document.getElementById('btn-organize');
+const previewPlaceholder = document.getElementById('preview-placeholder');
 const previewSection = document.getElementById('preview-section');
 const progressSection = document.getElementById('progress-section');
 const resultSection = document.getElementById('result-section');
@@ -111,14 +461,24 @@ const progressBar = document.getElementById('progress-bar');
 const progressMsg = document.getElementById('progress-message');
 const resultBox = document.getElementById('result-box');
 
-// Event listeners
 document.getElementById('detect-similar').addEventListener('change', function() {
-    document.getElementById('similaritySlider').style.display = 
-        this.checked ? 'block' : 'none';
+    document.getElementById('similaritySlider').style.display = this.checked ? 'block' : 'none';
 });
 
 document.getElementById('threshold').addEventListener('input', function() {
     document.getElementById('thresholdValue').textContent = this.value;
+});
+
+function cleanPath(p) {
+    if (!p) return '';
+    return p.trim().replace(/^["']|["']$/g, '').trim();
+}
+
+document.getElementById('input-path').addEventListener('blur', function() {
+    this.value = cleanPath(this.value);
+});
+document.getElementById('output-path').addEventListener('blur', function() {
+    this.value = cleanPath(this.value);
 });
 
 scanBtn.onclick = async function() {
@@ -126,8 +486,8 @@ scanBtn.onclick = async function() {
     progressSection.style.display = 'none';
     resultSection.style.display = 'none';
     organizeBtn.disabled = true;
-    const inputPath = document.getElementById('input-path').value;
-    const outputPath = document.getElementById('output-path').value;
+    const inputPath = cleanPath(document.getElementById('input-path').value);
+    const outputPath = cleanPath(document.getElementById('output-path').value);
     const structure = document.getElementById('structure').value;
     const recursive = document.getElementById('scan-recursive').checked;
     if (!inputPath || !outputPath) {
@@ -142,15 +502,21 @@ scanBtn.onclick = async function() {
             recursive: recursive
         });
         if (resp.data.success) {
-            document.getElementById('files-found').innerText = `Imagens encontradas: ${resp.data.files_found}`;
-            document.getElementById('summary').innerText = resp.data.summary;
+            document.getElementById('files-found').innerText = `Imagens: ${resp.data.files_found}`;
+            const foldersCount = typeof resp.data.summary === 'object' && resp.data.summary !== null
+                ? (resp.data.summary.total_folders ?? 0)
+                : (resp.data.summary || 0);
+            document.getElementById('summary').innerText = `Pastas: ${foldersCount}`;
             document.getElementById('tree-preview').innerText = resp.data.tree;
+            if (previewPlaceholder) previewPlaceholder.style.display = 'none';
             previewSection.style.display = 'block';
             organizeBtn.disabled = false;
         } else {
+            if (previewPlaceholder) previewPlaceholder.style.display = 'flex';
             alert(resp.data.error || 'Erro ao escanear.');
         }
     } catch (e) {
+        if (previewPlaceholder) previewPlaceholder.style.display = 'flex';
         alert('Erro ao escanear: ' + (e.response?.data?.error || e.message));
     }
 };
@@ -160,10 +526,11 @@ organizeBtn.onclick = async function() {
     resultSection.style.display = 'none';
     progressBar.style.width = '0%';
     progressBar.innerText = '0%';
-    progressMsg.innerText = '';
+    progressMsg.innerText = 'Iniciando organização...';
     organizeBtn.disabled = true;
-    const inputPath = document.getElementById('input-path').value;
-    const outputPath = document.getElementById('output-path').value;
+    scanBtn.disabled = true;
+    const inputPath = cleanPath(document.getElementById('input-path').value);
+    const outputPath = cleanPath(document.getElementById('output-path').value);
     const structure = document.getElementById('structure').value;
     const operation = document.getElementById('operation').value;
     const detectExact = document.getElementById('detect-exact').checked;
@@ -185,16 +552,20 @@ organizeBtn.onclick = async function() {
             pollProgress();
         } else {
             alert(resp.data.error || 'Erro ao iniciar organização.');
+            organizeBtn.disabled = false;
+            scanBtn.disabled = false;
         }
     } catch (e) {
         alert('Erro ao iniciar: ' + (e.response?.data?.error || e.message));
+        organizeBtn.disabled = false;
+        scanBtn.disabled = false;
     }
 };
 
 async function pollProgress() {
     let finished = false;
     while (!finished) {
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 800));
         try {
             const resp = await axios.get('/api/progress');
             if (resp.data.success) {
@@ -205,6 +576,7 @@ async function pollProgress() {
                 if (prog.stage === 'done' || !resp.data.processing) {
                     finished = true;
                     showResult();
+                    scanBtn.disabled = false;
                 }
             }
         } catch (e) {
@@ -219,13 +591,32 @@ async function showResult() {
         if (resp.data.success) {
             const r = resp.data.result;
             resultBox.innerHTML = `
-                <b>Arquivos processados:</b> ${r.files_processed}<br>
-                <b>Organizados:</b> ${r.files_organized}<br>
-                <b>Duplicatas exatas:</b> ${r.duplicates_exact}<br>
-                <b>Duplicatas visuais:</b> ${r.duplicates_similar}<br>
-                <b>Erros:</b> ${r.errors}<br>
-                <b>Início:</b> ${r.started_at}<br>
-                <b>Fim:</b> ${r.finished_at || '-'}<br>
+                <div class="results-grid">
+                    <div class="result-metric-card">
+                        <div class="result-metric-value">${r.files_processed}</div>
+                        <div class="result-metric-label">Fotos Processadas</div>
+                    </div>
+                    <div class="result-metric-card">
+                        <div class="result-metric-value">${r.files_organized}</div>
+                        <div class="result-metric-label">Fotos Organizadas</div>
+                    </div>
+                    <div class="result-metric-card">
+                        <div class="result-metric-value">${r.duplicates_exact}</div>
+                        <div class="result-metric-label">Duplicatas Exatas</div>
+                    </div>
+                    <div class="result-metric-card">
+                        <div class="result-metric-value">${r.duplicates_similar}</div>
+                        <div class="result-metric-label">Duplicatas Visuais</div>
+                    </div>
+                    <div class="result-metric-card">
+                        <div class="result-metric-value" style="color: ${r.errors > 0 ? '#dc2626' : '#448844'}">${r.errors}</div>
+                        <div class="result-metric-label">Erros</div>
+                    </div>
+                </div>
+                <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                    <strong>Início:</strong> ${r.started_at || '-'} &nbsp;|&nbsp;
+                    <strong>Conclusão:</strong> ${r.finished_at || '-'}
+                </div>
             `;
             resultSection.style.display = 'block';
         }
