@@ -1,12 +1,7 @@
-"""
-API Routes Module - Photo Organizer Dashboard
-
-Rotas da API REST para operações do organizador de fotos.
-"""
-
-from flask import request, jsonify
 from pathlib import Path
 import threading
+from typing import Any
+from flask import request, jsonify
 
 from src.utils.config import get_config
 from src.utils.logger import get_logger
@@ -16,8 +11,14 @@ from src.organization.folder_organizer import FolderOrganizer
 from src.processing import _process_photos
 
 
-def register_api_routes(app):
-    """Registra todas as rotas da API no app Flask."""
+def _clean_path(path_val: object) -> Path:
+    if path_val is None:
+        return Path("")
+    clean_str = str(path_val).strip().strip('"').strip("'").strip()
+    return Path(clean_str)
+
+
+def register_api_routes(app: Any) -> None:
 
     @app.route("/api/config", methods=["GET"])
     def get_current_config():
@@ -42,7 +43,7 @@ def register_api_routes(app):
     def browse_folder():
         try:
             data = request.json
-            folder_path = Path(data.get("path", ""))
+            folder_path = _clean_path(data.get("path", ""))
             if not folder_path.exists():
                 return jsonify({"success": False, "error": "Pasta não existe"}), 404
             if not folder_path.is_dir():
@@ -64,7 +65,7 @@ def register_api_routes(app):
     def validate_path():
         try:
             data = request.json
-            path = Path(data.get("path", ""))
+            path = _clean_path(data.get("path", ""))
             if not path.exists():
                 return jsonify({
                     "success": True,
@@ -99,8 +100,8 @@ def register_api_routes(app):
     def scan_folder():
         try:
             data = request.json
-            input_path = Path(data.get("input_path"))
-            output_path = Path(data.get("output_path"))
+            input_path = _clean_path(data.get("input_path"))
+            output_path = _clean_path(data.get("output_path"))
             structure = data.get("structure", "year_month_day")
             recursive = data.get("recursive", True)
             if not input_path.exists():
@@ -145,8 +146,8 @@ def register_api_routes(app):
             return jsonify({"success": False, "error": "Processamento já em andamento"}), 409
         try:
             data = request.json
-            input_path = Path(data.get("input_path"))
-            output_path = Path(data.get("output_path"))
+            input_path = _clean_path(data.get("input_path"))
+            output_path = _clean_path(data.get("output_path"))
             structure = data.get("structure", "year_month_day")
             operation = data.get("operation", "copy")
             recursive = data.get("recursive", True)
